@@ -48,6 +48,7 @@ export const StatusComponent = () => {
       <InfoCard
         title="Instance Status"
         subheader="Scheduler and Metadatabase Status"
+        variant="fullHeight"
       >
         <StructuredMetadataTable metadata={metadata} />
       </InfoCard>

@@ -39,14 +39,12 @@ export const VersionComponent = () => {
 
   if (value) {
     const metadata = {
-      'Version': value.version,
+      Version: value.version,
       'Git Version': value.git_version,
     };
 
     return (
-      <InfoCard
-        title="Instance Version"
-      >
+      <InfoCard title="Instance Version" variant="fullHeight">
         <StructuredMetadataTable metadata={metadata} />
       </InfoCard>
     );
