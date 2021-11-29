@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import { LandingPageComponent } from './LandingPageComponent';
+import { HomePage } from './HomePage';
 import { ThemeProvider } from '@material-ui/core';
 import { lightTheme } from '@backstage/theme';
 import { rest } from 'msw';
@@ -24,7 +24,7 @@ import {
   renderInTestApp,
 } from '@backstage/test-utils';
 
-describe('LandingPageComponent', () => {
+describe('HomePage', () => {
   const server = setupServer();
   // Enable sane handlers for network requests
   setupRequestMockHandlers(server);
@@ -39,7 +39,7 @@ describe('LandingPageComponent', () => {
   it('should render', async () => {
     const rendered = await renderInTestApp(
       <ThemeProvider theme={lightTheme}>
-        <LandingPageComponent />
+        <HomePage />
       </ThemeProvider>,
     );
     expect(

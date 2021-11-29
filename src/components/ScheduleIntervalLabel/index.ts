@@ -1,0 +1,1 @@
+export { ScheduleIntervalLabel } from './ScheduleIntervalLabel';

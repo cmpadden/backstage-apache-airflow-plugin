@@ -34,10 +34,10 @@ git clone \
 +++ b/packages/app/src/App.tsx
 @@ -86,6 +86,7 @@ import { providers } from './identityProviders';
  import * as plugins from './plugins';
- 
+
  import { techDocsPage } from './components/techdocs/TechDocsPage';
 +import { ApacheAirflowPage } from '@backstage/plugin-apache-airflow';
- 
+
  const app = createApp({
    apis,
 @@ -203,6 +204,7 @@ const routes = (
@@ -49,7 +49,7 @@ git clone \
  );
 ```
 
-## Getting started
+## Configuration
 
 This plugin uses the Backstage proxy to securely communicate with the Apache
 Airflow API. Add the following to your `app-config.yaml` to enable this
@@ -86,7 +86,7 @@ password of your instance.
 echo -n "airflow:airflow" | base64 -w0
 ```
 
-## Local Development
+## Development
 
 For local development, you can setup a local Airflow instance for development
 purposes by [running Airflow with Docker Compose][2].
@@ -120,8 +120,6 @@ And finally, to run an instance of this plugin, you can run:
 ```sh
 yarn start
 ```
-
-## References
 
 [1]: https://airflow.apache.org/docs/apache-airflow/stable/security/api.html
 [2]: https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html

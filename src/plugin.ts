@@ -39,10 +39,7 @@ export const apacheAirflowPlugin = createPlugin({
 export const ApacheAirflowPage = apacheAirflowPlugin.provide(
   createRoutableExtension({
     name: 'ApacheAirflowPage',
-    component: () =>
-      import('./components/LandingPageComponent').then(
-        m => m.LandingPageComponent,
-      ),
+    component: () => import('./components/HomePage').then(m => m.HomePage),
     mountPoint: rootRouteRef,
   }),
 );

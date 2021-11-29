@@ -27,22 +27,19 @@ import { DagTableComponent } from '../DagTableComponent';
 import { StatusComponent } from '../StatusComponent';
 import { VersionComponent } from '../VersionComponent';
 
-export const LandingPageComponent = () => (
+export const HomePage = () => (
   <Page themeId="tool">
-    <Header
-      title="Apache Airflow Dashboard"
-      subtitle="Workflow management platform"
-    >
+    <Header title="Apache Airflow" subtitle="Workflow management platform">
       <HeaderLabel label="Owner" value="Colton Padden" />
       <HeaderLabel label="Lifecycle" value="Alpha" />
     </Header>
     <Content>
       <ContentHeader title="Overview">
         <SupportButton>
-          See an overview of your Apache Airflow workflows
+          See an overview of your Apache Airflow instance, and manage workflows
         </SupportButton>
       </ContentHeader>
-      <Grid container spacing={3} direction="column">
+      <Grid container spacing={3} direction="row">
         <Grid item sm={12} lg={6}>
           <VersionComponent />
         </Grid>

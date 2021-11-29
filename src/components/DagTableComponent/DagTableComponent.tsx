@@ -29,7 +29,9 @@ import Typography from '@material-ui/core/Typography';
 import Alert from '@material-ui/lab/Alert';
 import React from 'react';
 import { useAsync } from 'react-use';
-import { apacheAirflowApiRef, Dag, Dags } from '../../api';
+import { apacheAirflowApiRef } from '../../api';
+import { Dag, Dags, ScheduleInterval } from '../../api/types';
+import { ScheduleIntervalLabel } from '../ScheduleIntervalLabel';
 
 type DenseTableProps = {
   dags: Dag[];
@@ -44,11 +46,24 @@ const columns: TableColumn[] = [
         <Switch checked={row.is_paused} />
       </Tooltip>
     ),
+    width: '5%',
   },
   {
-    title: 'ID',
+    title: 'DAG',
     field: 'dag_id',
-    highlight: true,
+    render: (row: Partial<Dag>) => (
+      <div>
+        <Typography variant="subtitle2" gutterBottom noWrap>
+          {row.dag_id}
+        </Typography>
+        <Box display="flex" alignItems="center">
+          {row.tags?.map(tag => (
+            <Chip label={tag.name} size="small" />
+          ))}
+        </Box>
+      </div>
+    ),
+    width: '45%',
   },
   {
     title: 'Owner',
@@ -60,10 +75,10 @@ const columns: TableColumn[] = [
         ))}
       </Box>
     ),
+    width: '10%',
   },
   {
     title: 'Active',
-    field: 'is_active',
     render: (row: Partial<Dag>) => (
       <Box display="flex" alignItems="center">
         {row.is_active ? <StatusOK /> : <StatusError />}
@@ -72,28 +87,12 @@ const columns: TableColumn[] = [
         </Typography>
       </Box>
     ),
+    width: '10%',
   },
   {
     title: 'Schedule',
-    field: 'schedule_interval.__type',
-  },
-  // {
-  //   title: 'Actions',
-  //   render: () => ('TODO')
-  // },
-  // {
-  //   title: 'Link',
-  //   render: () => ('TODO')
-  // },
-  {
-    title: 'Tags',
-    field: 'tags',
     render: (row: Partial<Dag>) => (
-      <Box display="flex" alignItems="center">
-        {row.tags?.map(tag => (
-          <Chip label={tag.name} size="small" />
-        ))}
-      </Box>
+      <ScheduleIntervalLabel interval={row.schedule_interval} />
     ),
   },
 ];
@@ -102,7 +101,7 @@ export const DenseTable = ({ dags }: DenseTableProps) => {
   return (
     <Table
       title="DAGs"
-      options={{ search: false, pageSize: 5 }}
+      options={{ pageSize: 5 }}
       columns={columns}
       data={dags}
     />
