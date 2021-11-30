@@ -1,5 +1,5 @@
 import { createApiRef } from '@backstage/core-plugin-api';
-import { Dags, InstanceStatus, InstanceVersion } from './types';
+import { Dag, InstanceStatus, InstanceVersion } from './types';
 
 export const apacheAirflowApiRef = createApiRef<ApacheAirflowApi>({
   id: 'plugin.apacheairflow.service',
@@ -7,7 +7,8 @@ export const apacheAirflowApiRef = createApiRef<ApacheAirflowApi>({
 });
 
 export type ApacheAirflowApi = {
-  listDags(): Promise<Dags>;
+  listDags(): Promise<Dag[]>;
+  updateDag(dagId: string, isPaused: boolean): Promise<any>;
   getInstanceStatus(): Promise<InstanceStatus>;
   getInstanceVersion(): Promise<InstanceVersion>;
 };

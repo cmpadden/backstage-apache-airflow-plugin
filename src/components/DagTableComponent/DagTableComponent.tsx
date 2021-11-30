@@ -33,9 +33,6 @@ import { apacheAirflowApiRef } from '../../api';
 import { Dag, Dags, ScheduleInterval } from '../../api/types';
 import { ScheduleIntervalLabel } from '../ScheduleIntervalLabel';
 
-type DenseTableProps = {
-  dags: Dag[];
-};
 
 const columns: TableColumn[] = [
   {
@@ -97,6 +94,10 @@ const columns: TableColumn[] = [
   },
 ];
 
+type DenseTableProps = {
+  dags: Dag[];
+};
+
 export const DenseTable = ({ dags }: DenseTableProps) => {
   return (
     <Table
@@ -110,7 +111,7 @@ export const DenseTable = ({ dags }: DenseTableProps) => {
 
 export const DagTableComponent = () => {
   const apiClient = useApi(apacheAirflowApiRef);
-  const { value, loading, error } = useAsync(async (): Promise<Dags> => {
+  const { value, loading, error } = useAsync(async (): Promise<Dag[]> => {
     return await apiClient.listDags();
   }, []);
 
@@ -120,5 +121,5 @@ export const DagTableComponent = () => {
     return <Alert severity="error">{error.message}</Alert>;
   }
 
-  return <DenseTable dags={value?.dags || []} />;
+  return <DenseTable dags={value || []} />;
 };

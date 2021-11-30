@@ -1,4 +1,5 @@
 export type {
+  ListDagsParams,
   Dag,
   Dags,
   Tag,

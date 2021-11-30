@@ -1,6 +1,14 @@
-import fetch from 'cross-fetch';
-import { ApacheAirflowApi, Dags, InstanceStatus, InstanceVersion } from './ApacheAirflowApi';
 import { DiscoveryApi } from '@backstage/core-plugin-api';
+import fetch from 'cross-fetch';
+import qs from 'qs';
+import { ApacheAirflowApi } from './ApacheAirflowApi';
+import {
+  Dag,
+  Dags,
+  InstanceStatus,
+  InstanceVersion,
+  ListDagsParams,
+} from './types';
 
 export class ApacheAirflowClient implements ApacheAirflowApi {
   discoveryApi: DiscoveryApi;
@@ -9,19 +17,41 @@ export class ApacheAirflowClient implements ApacheAirflowApi {
     this.discoveryApi = discoveryApi;
   }
 
-  private async fetch<T = any>(input: string, init?: RequestInit): Promise<T> {
-    // As configured previously for the backend proxy
-    const proxyUri = `${await this.discoveryApi.getBaseUrl('proxy')}/airflow`;
+  /**
+   * List all DAGs in the Airflow instance
+   *
+   * @remarks
+   * All DAGs with a limit of 100 results per request are returned; this may be
+   * bogged-down for instances with many DAGs, in which case table pagination
+   * should be implemented
+   *
+   * @returns {Promise<Dag[]>}
+   */
+  async listDags(): Promise<Dag[]> {
+    const dags: Dag[] = [];
+    const limit = 100;
+    const params: ListDagsParams = {
+      limit: limit,
+      offset: 0,
+    };
+    for (;;) {
+      const response = await this.fetch<Dags>(`/dags?${qs.stringify(params)}`);
+      dags.push(...response.dags);
 
-    // TODO: implement pagination - possibly just support query paramters
-
-    const resp = await fetch(`${proxyUri}${input}`, init);
-    if (!resp.ok) throw new Error(resp.statusText);
-    return await resp.json();
+      if (dags.length >= response.total_entries) {
+        break;
+      }
+      params.offset += limit;
+    }
+    return dags;
   }
 
-  async listDags(): Promise<Dags> {
-    return await this.fetch<Dags>('/dags');
+  async updateDag(dagId: string, isPaused: boolean): Promise<void> {
+    const params = {
+      method: 'PATCH',
+      body: JSON.stringify({ is_paused: isPaused }),
+    };
+    await this.fetch(`/dags/${dagId}`, params);
   }
 
   async getInstanceStatus(): Promise<InstanceStatus> {
@@ -30,5 +60,12 @@ export class ApacheAirflowClient implements ApacheAirflowApi {
 
   async getInstanceVersion(): Promise<InstanceVersion> {
     return await this.fetch<InstanceVersion>('/version');
+  }
+
+  private async fetch<T = any>(input: string, init?: RequestInit): Promise<T> {
+    const proxyUri = `${await this.discoveryApi.getBaseUrl('proxy')}/airflow`;
+    const response = await fetch(`${proxyUri}${input}`, init);
+    if (!response.ok) throw new Error(response.statusText);
+    return await response.json();
   }
 }

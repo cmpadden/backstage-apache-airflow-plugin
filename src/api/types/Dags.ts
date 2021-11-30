@@ -1,3 +1,16 @@
+
+
+/**
+ * Query parameters for listing DAGs
+ */
+export interface ListDagsParams {
+  limit?: number;
+  offset?: number;
+  order_by?: string;
+  tags?: Tag[];
+  only_active?: boolean;
+}
+
 export interface Dags {
   dags: Dag[];
   total_entries: number;
