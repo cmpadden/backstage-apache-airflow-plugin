@@ -19,208 +19,114 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { ApacheAirflowClient } from './index';
 import { UrlPatternDiscovery } from '@backstage/core-app-api';
-import { IdentityApi } from '@backstage/core-plugin-api';
+import {
+  Dag,
+  Dags,
+  InstanceStatus,
+  InstanceVersion,
+  ListDagsParams,
+} from './types';
 
 const server = setupServer();
 
-const identityApiAuthenticated: IdentityApi = {
-  getUserId() {
-    return 'jane-fonda';
+const dags: Dag[] = [
+  {
+    dag_id: 'mock_dag_1',
+    fileloc: '',
+    file_token: '',
+    owners: ['admin'],
+    schedule_interval: { __type: 'CronExpression', value: '* * 0 0 0' },
+    tags: [{ name: 'exmaple' }],
   },
-  getProfile() {
-    return { email: 'jane-fonda@spotify.com' };
+  {
+    dag_id: 'mock_dag_2',
+    fileloc: '',
+    file_token: '',
+    owners: ['admin'],
+    schedule_interval: { __type: 'CronExpression', value: '* * 0 0 0' },
+    tags: [{ name: 'exmaple' }],
   },
-  async getIdToken() {
-    return Promise.resolve('fake-id-token');
+  {
+    dag_id: 'mock_dag_3',
+    fileloc: '',
+    file_token: '',
+    owners: ['admin'],
+    schedule_interval: { __type: 'CronExpression', value: '* * 0 0 0' },
+    tags: [{ name: 'exmaple' }],
   },
-  async signOut() {
-    return Promise.resolve();
+  {
+    dag_id: 'mock_dag_4',
+    fileloc: '',
+    file_token: '',
+    owners: ['admin'],
+    schedule_interval: { __type: 'CronExpression', value: '* * 0 0 0' },
+    tags: [{ name: 'exmaple' }],
   },
-};
-const identityApiGuest: IdentityApi = {
-  getUserId() {
-    return 'guest';
+  {
+    dag_id: 'mock_dag_5',
+    fileloc: '',
+    file_token: '',
+    owners: ['admin'],
+    schedule_interval: { __type: 'CronExpression', value: '* * 0 0 0' },
+    tags: [{ name: 'exmaple' }],
   },
-  getProfile() {
-    return {};
-  },
-  async getIdToken() {
-    return Promise.resolve(undefined);
-  },
-  async signOut() {
-    return Promise.resolve();
-  },
-};
+];
 
-describe('SonarQubeClient', () => {
+describe('ApacheAirflowClient', () => {
   setupRequestMockHandlers(server);
 
   const mockBaseUrl = 'http://backstage:9191/api/proxy';
   const discoveryApi = UrlPatternDiscovery.compile(mockBaseUrl);
 
-  const setupHandlers = (
-    metricKeys = [
-      'alert_status',
-      'bugs',
-      'reliability_rating',
-      'vulnerabilities',
-      'security_rating',
-      'security_hotspots_reviewed',
-      'security_review_rating',
-      'code_smells',
-      'sqale_rating',
-      'coverage',
-      'duplicated_lines_density',
-    ],
-  ) => {
+  const setupHandlers = () => {
     server.use(
-      rest.get(`${mockBaseUrl}/sonarqube/metrics/search`, (req, res, ctx) => {
-        expect(req.url.searchParams.get('ps')).toBe('500');
+      rest.get(`${mockBaseUrl}/airflow/dags`, (req, res, ctx) => {
+        expect(req.url.searchParams.get('limit')).toBe('2');
 
         // emulate paging to check if everything is requested
-        if (req.url.searchParams.get('p') === '1') {
+        if (req.url.searchParams.get('offset') === '0') {
           return res(
             ctx.json({
-              metrics: metricKeys.slice(0, 5).map(k => ({ key: k })),
-              total: metricKeys.length,
+              dags: dags.slice(0, 2),
+              total_entries: dags.length,
             }),
           );
         }
 
-        // make sure this is only called twice
-        expect(req.url.searchParams.get('p')).toBe('2');
+        // page offset 2
+        if (req.url.searchParams.get('offset') === '2') {
+          return res(
+            ctx.json({
+              dags: dags.slice(2, 4),
+              total_entries: dags.length,
+            }),
+          );
+        }
+
+        // page offset 4
+        expect(req.url.searchParams.get('offset')).toBe('4');
         return res(
           ctx.json({
-            metrics: metricKeys.slice(5).map(k => ({ key: k })),
-            total: metricKeys.length,
+            dags: dags.slice(4),
+            total_entries: dags.length,
           }),
-        );
-      }),
-    );
-
-    server.use(
-      rest.get(`${mockBaseUrl}/sonarqube/components/show`, (req, res, ctx) => {
-        expect(req.url.searchParams.toString()).toBe('component=our%3Aservice');
-        return res(
-          ctx.json({
-            component: {
-              analysisDate: '2020-01-01T00:00:00Z',
-            },
-          } as ComponentWrapper),
-        );
-      }),
-    );
-
-    server.use(
-      rest.get(`${mockBaseUrl}/sonarqube/measures/search`, (req, res, ctx) => {
-        expect(req.url.searchParams.toString()).toBe(
-          `projectKeys=our%3Aservice&metricKeys=${metricKeys.join('%2C')}`,
-        );
-
-        return res(
-          ctx.json({
-            measures: [
-              {
-                metric: 'alert_status',
-                value: 'OK',
-                component: 'our:service',
-              },
-              {
-                metric: 'alert_status',
-                value: 'ERROR',
-                component: 'other-service',
-              },
-              {
-                metric: 'bugs',
-                value: '2',
-                component: 'our:service',
-              },
-              {
-                metric: 'reliability_rating',
-                value: '3.0',
-                component: 'our:service',
-              },
-              {
-                metric: 'vulnerabilities',
-                value: '4',
-                component: 'our:service',
-              },
-              {
-                metric: 'security_rating',
-                value: '1.0',
-                component: 'our:service',
-              },
-              {
-                metric: 'security_hotspots_reviewed',
-                value: '100',
-                component: 'our:service',
-              },
-              {
-                metric: 'security_review_rating',
-                value: '1.0',
-                component: 'our:service',
-              },
-              {
-                metric: 'code_smells',
-                value: '100',
-                component: 'our:service',
-              },
-              {
-                metric: 'sqale_rating',
-                value: '2.0',
-                component: 'our:service',
-              },
-              {
-                metric: 'coverage',
-                value: '55.5',
-                component: 'our:service',
-              },
-              {
-                metric: 'duplicated_lines_density',
-                value: '1.0',
-                component: 'our:service',
-              },
-            ].filter(m => metricKeys.includes(m.metric)),
-          } as MeasuresWrapper),
         );
       }),
     );
   };
 
-  it('should report finding summary', async () => {
+  it('list dags should return all dags with emulated pagination', async () => {
     setupHandlers();
 
-    const client = new SonarQubeClient({
+    const client = new ApacheAirflowClient({
       discoveryApi,
-      identityApi: identityApiAuthenticated,
     });
 
-    const summary = await client.getFindingSummary('our:service');
-    expect(summary).toEqual(
-      expect.objectContaining({
-        lastAnalysis: '2020-01-01T00:00:00Z',
-        metrics: {
-          alert_status: 'OK',
-          bugs: '2',
-          reliability_rating: '3.0',
-          vulnerabilities: '4',
-          security_rating: '1.0',
-          security_hotspots_reviewed: '100',
-          security_review_rating: '1.0',
-          code_smells: '100',
-          sqale_rating: '2.0',
-          coverage: '55.5',
-          duplicated_lines_density: '1.0',
-        },
-        projectUrl: 'https://sonarcloud.io/dashboard?id=our%3Aservice',
-      }),
-    );
-    expect(summary?.getIssuesUrl('CODE_SMELL')).toEqual(
-      'https://sonarcloud.io/project/issues?id=our%3Aservice&types=CODE_SMELL&resolved=false',
-    );
-    expect(summary?.getComponentMeasuresUrl('COVERAGE')).toEqual(
-      'https://sonarcloud.io/component_measures?id=our%3Aservice&metric=coverage&resolved=false&view=list',
-    );
+    // call with limit of 2, to force two paginations in requesting all dags
+    // as our mocked response has 4 total entries
+    //
+    const responseDags = await client.listDags({ objectsPerRequest: 2 });
+    expect(responseDags.length).toEqual(5);
+    expect(responseDags).toEqual(dags);
   });
-
 });

@@ -25,15 +25,20 @@ export class ApacheAirflowClient implements ApacheAirflowApi {
    * bogged-down for instances with many DAGs, in which case table pagination
    * should be implemented
    *
+   * @param {number} objectsPerRequest records returned per request in pagination
    * @returns {Promise<Dag[]>}
    */
-  async listDags(): Promise<Dag[]> {
+  async listDags({
+    objectsPerRequest = 100,
+  }: {
+    objectsPerRequest: number;
+  }): Promise<Dag[]> {
     const dags: Dag[] = [];
-    const limit = 100;
     const params: ListDagsParams = {
-      limit: limit,
+      limit: objectsPerRequest,
       offset: 0,
     };
+
     for (;;) {
       const response = await this.fetch<Dags>(`/dags?${qs.stringify(params)}`);
       dags.push(...response.dags);
@@ -41,7 +46,9 @@ export class ApacheAirflowClient implements ApacheAirflowApi {
       if (dags.length >= response.total_entries) {
         break;
       }
-      params.offset += limit;
+      if (typeof params.offset !== 'undefined') {
+        params.offset += objectsPerRequest;
+      }
     }
     return dags;
   }
