@@ -15,6 +15,5 @@
  */
 
 // export * as types from './types';
-export type { ApacheAirflowApi } from './ApacheAirflowApi';
-export { apacheAirflowApiRef } from './ApacheAirflowApi';
-export { ApacheAirflowClient } from './ApacheAirflowClient';
+export * from './ApacheAirflowApi';
+export * from './ApacheAirflowClient';
