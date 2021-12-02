@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Backstage Authors
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
+import { UrlPatternDiscovery } from '@backstage/core-app-api';
 import { setupRequestMockHandlers } from '@backstage/test-utils';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { ApacheAirflowClient } from './index';
-import { UrlPatternDiscovery } from '@backstage/core-app-api';
-import {
-  Dag,
-  Dags,
-  InstanceStatus,
-  InstanceVersion,
-  ListDagsParams,
-} from './types';
+import { Dag } from './types';
 
 const server = setupServer();
 
@@ -112,21 +106,54 @@ describe('ApacheAirflowClient', () => {
           }),
         );
       }),
+
+      rest.patch(`${mockBaseUrl}/airflow/dags/:dag_id`, (req, res, ctx) => {
+        const { dag_id } = req.params;
+        const body = JSON.parse(req.body as string);
+        expect(body.is_paused).toBeDefined();
+        return res(
+          ctx.json({
+            dag_id: dag_id,
+            root_dag_id: 'string',
+            is_paused: body.is_paused,
+            is_active: true,
+            is_subdag: true,
+            fileloc: 'string',
+            file_token: 'string',
+            owners: ['string'],
+            description: 'string',
+            schedule_interval: {
+              __type: 'string',
+              days: 0,
+              seconds: 0,
+              microseconds: 0,
+            },
+            tags: [{}],
+          }),
+        );
+      }),
     );
   };
 
   it('list dags should return all dags with emulated pagination', async () => {
     setupHandlers();
-
     const client = new ApacheAirflowClient({
       discoveryApi,
     });
 
     // call with limit of 2, to force two paginations in requesting all dags
     // as our mocked response has 4 total entries
-    //
     const responseDags = await client.listDags({ objectsPerRequest: 2 });
     expect(responseDags.length).toEqual(5);
     expect(responseDags).toEqual(dags);
+  });
+
+  it('update dag should return dag information with updated paused attribute', async () => {
+    setupHandlers();
+    const client = new ApacheAirflowClient({ discoveryApi });
+    const dagId = 'mock_dag_1';
+    const response: Dag = await client.updateDag(dagId, true);
+    expect(response.dag_id).toEqual(dagId);
+    expect(response.is_paused).toEqual(true);
   });
 });

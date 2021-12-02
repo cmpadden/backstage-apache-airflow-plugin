@@ -51,12 +51,12 @@ export class ApacheAirflowClient implements ApacheAirflowApi {
     return dags;
   }
 
-  async updateDag(dagId: string, isPaused: boolean): Promise<void> {
+  async updateDag(dagId: string, isPaused: boolean): Promise<Dag> {
     const init = {
       method: 'PATCH',
       body: JSON.stringify({ is_paused: isPaused }),
     };
-    await this.fetch(`/dags/${dagId}`, init);
+    return await this.fetch<Dag>(`/dags/${dagId}`, init);
   }
 
   async getInstanceStatus(): Promise<InstanceStatus> {
