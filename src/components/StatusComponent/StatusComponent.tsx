@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Colton Padden
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import {
   InfoCard,
   Progress,
@@ -22,7 +23,8 @@ import { useApi } from '@backstage/core-plugin-api';
 import Alert from '@material-ui/lab/Alert';
 import React from 'react';
 import { useAsync } from 'react-use';
-import { apacheAirflowApiRef, InstanceStatus } from '../../api';
+import { apacheAirflowApiRef } from '../../api';
+import { InstanceStatus } from '../../api/types';
 
 export const StatusComponent = () => {
   const apiClient = useApi(apacheAirflowApiRef);
