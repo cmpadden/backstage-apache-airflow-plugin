@@ -51,6 +51,14 @@ git clone \
 
 ## Configuration
 
+For links to the Airflow instance, the `baseUrl` must be defined in
+`app-config.yaml`.
+
+```yaml
+apacheAirflow:
+  baseUrl: https://your.airflow.instance.com
+```
+
 This plugin uses the Backstage proxy to securely communicate with the Apache
 Airflow API. Add the following to your `app-config.yaml` to enable this
 configuration:

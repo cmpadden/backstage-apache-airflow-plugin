@@ -138,7 +138,8 @@ describe('ApacheAirflowClient', () => {
   it('list dags should return all dags with emulated pagination', async () => {
     setupHandlers();
     const client = new ApacheAirflowClient({
-      discoveryApi,
+      discoveryApi: discoveryApi,
+      baseUrl: 'localhost:8080/',
     });
 
     // call with limit of 2, to force two paginations in requesting all dags
@@ -150,7 +151,10 @@ describe('ApacheAirflowClient', () => {
 
   it('update dag should return dag information with updated paused attribute', async () => {
     setupHandlers();
-    const client = new ApacheAirflowClient({ discoveryApi });
+    const client = new ApacheAirflowClient({
+      discoveryApi: discoveryApi,
+      baseUrl: 'localhost:8080/',
+    });
     const dagId = 'mock_dag_1';
     const response: Dag = await client.updateDag(dagId, true);
     expect(response.dag_id).toEqual(dagId);

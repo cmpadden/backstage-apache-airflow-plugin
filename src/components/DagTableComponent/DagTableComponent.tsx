@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
+import IconButton from '@material-ui/core/IconButton';
+
 import {
   Progress,
   StatusError,
@@ -60,7 +63,7 @@ const columns: TableColumn[] = [
         </Box>
       </div>
     ),
-    width: '45%',
+    width: '60%',
   },
   {
     title: 'Owner',
@@ -91,6 +94,17 @@ const columns: TableColumn[] = [
     render: (row: Partial<Dag>) => (
       <ScheduleIntervalLabel interval={row.schedule_interval} />
     ),
+    width: '10%',
+  },
+  {
+    title: 'Link',
+    field: 'dagUrl',
+    render: (row: Partial<Dag>) => (
+      <IconButton aria-label="details" href={row.dagUrl}>
+        <OpenInBrowserIcon />
+      </IconButton>
+    ),
+    width: '5%',
   },
 ];
 
@@ -121,8 +135,11 @@ export const DagTableComponent = () => {
     return <Alert severity="error">{error.message}</Alert>;
   }
 
-  // table records require `id` attribute
-  const data = value.map(el => ({ ...el, id: el.dag_id }));
+  const data = value.map(el => ({
+    ...el,
+    id: el.dag_id, // table records require `id` attribute
+    dagUrl: `${apiClient.baseUrl}dag_details?dag_id=${el.dag_id}`, // construct path to DAG using `baseUrl`
+  }));
 
   return <DenseTable dags={data || []} />;
 };
