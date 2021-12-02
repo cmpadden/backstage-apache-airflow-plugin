@@ -28,37 +28,35 @@ export class ApacheAirflowClient implements ApacheAirflowApi {
    * @param {number} objectsPerRequest records returned per request in pagination
    * @returns {Promise<Dag[]>}
    */
-  async listDags({
-    objectsPerRequest = 100,
-  }: {
-    objectsPerRequest: number;
-  }): Promise<Dag[]> {
+  async listDags(options = { objectsPerRequest: 100 }): Promise<Dag[]> {
     const dags: Dag[] = [];
-    const params: ListDagsParams = {
-      limit: objectsPerRequest,
+    const searchParams: ListDagsParams = {
+      limit: options.objectsPerRequest,
       offset: 0,
     };
 
     for (;;) {
-      const response = await this.fetch<Dags>(`/dags?${qs.stringify(params)}`);
+      const response = await this.fetch<Dags>(
+        `/dags?${qs.stringify(searchParams)}`,
+      );
       dags.push(...response.dags);
 
       if (dags.length >= response.total_entries) {
         break;
       }
-      if (typeof params.offset !== 'undefined') {
-        params.offset += objectsPerRequest;
+      if (typeof searchParams.offset !== 'undefined') {
+        searchParams.offset += options.objectsPerRequest;
       }
     }
     return dags;
   }
 
   async updateDag(dagId: string, isPaused: boolean): Promise<void> {
-    const params = {
+    const init = {
       method: 'PATCH',
       body: JSON.stringify({ is_paused: isPaused }),
     };
-    await this.fetch(`/dags/${dagId}`, params);
+    await this.fetch(`/dags/${dagId}`, init);
   }
 
   async getInstanceStatus(): Promise<InstanceStatus> {

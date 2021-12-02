@@ -30,9 +30,8 @@ import Alert from '@material-ui/lab/Alert';
 import React from 'react';
 import { useAsync } from 'react-use';
 import { apacheAirflowApiRef } from '../../api';
-import { Dag, Dags, ScheduleInterval } from '../../api/types';
+import { Dag } from '../../api/types';
 import { ScheduleIntervalLabel } from '../ScheduleIntervalLabel';
-
 
 const columns: TableColumn[] = [
   {
@@ -40,7 +39,7 @@ const columns: TableColumn[] = [
     field: 'is_paused',
     render: (row: Partial<Dag>) => (
       <Tooltip title="Pause/Unpause DAG">
-        <Switch checked={row.is_paused} />
+        <Switch checked={!row.is_paused} disabled />
       </Tooltip>
     ),
     width: '5%',

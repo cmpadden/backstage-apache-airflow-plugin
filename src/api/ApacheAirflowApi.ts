@@ -7,7 +7,7 @@ export const apacheAirflowApiRef = createApiRef<ApacheAirflowApi>({
 });
 
 export type ApacheAirflowApi = {
-  listDags(params: { objectsPerRequest: number }): Promise<Dag[]>;
+  listDags(options?: { objectsPerRequest: number }): Promise<Dag[]>;
   updateDag(dagId: string, isPaused: boolean): Promise<any>;
   getInstanceStatus(): Promise<InstanceStatus>;
   getInstanceVersion(): Promise<InstanceVersion>;
