@@ -46,15 +46,15 @@ const columns: TableColumn[] = [
   },
   {
     title: 'DAG',
-    field: 'dag_id',
+    field: 'id',
     render: (row: Partial<Dag>) => (
       <div>
         <Typography variant="subtitle2" gutterBottom noWrap>
-          {row.dag_id}
+          {row.id}
         </Typography>
         <Box display="flex" alignItems="center">
-          {row.tags?.map(tag => (
-            <Chip label={tag.name} size="small" />
+          {row.tags?.map((tag, ix) => (
+            <Chip label={tag.name} key={ix} size="small" />
           ))}
         </Box>
       </div>
@@ -66,8 +66,8 @@ const columns: TableColumn[] = [
     field: 'owners',
     render: (row: Partial<Dag>) => (
       <Box display="flex" alignItems="center">
-        {row.owners?.map(owner => (
-          <Chip label={owner} size="small" />
+        {row.owners?.map((owner, ix) => (
+          <Chip label={owner} key={ix} size="small" />
         ))}
       </Box>
     ),
@@ -120,5 +120,8 @@ export const DagTableComponent = () => {
     return <Alert severity="error">{error.message}</Alert>;
   }
 
-  return <DenseTable dags={value || []} />;
+  // table records require `id` attribute
+  const data = value.map(el => ({ ...el, id: el.dag_id }));
+
+  return <DenseTable dags={data || []} />;
 };
