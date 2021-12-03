@@ -1,3 +1,9 @@
+**ARCHIVED** -- this repository has been archived as the plugin is being
+integrated directly into the [Backstage](https://github.com/backstage/backstage) 
+repository. See pull request [#8348](https://github.com/backstage/backstage/pull/8348).
+
+<hr />
+
 # Apache Airflow Plugin
 
 Welcome to the apache-airflow plugin!
@@ -65,7 +71,7 @@ configuration:
 
 ```yaml
 proxy:
-  '/airflow':
+  "/airflow":
     target: http://localhost:8080/api/v1
     headers:
       Authorization: ${AIRFLOW_BASIC_AUTH_HEADER}
@@ -81,7 +87,7 @@ While working locally, you may wish to hard-code your API key in your
 ```yaml
 # app-config.local.yaml
 proxy:
-  '/airflow':
+  "/airflow":
     target: http://localhost:8080/api/v1
     headers:
       Authorization: Basic YWlyZmxvdzphaXJmbG93
